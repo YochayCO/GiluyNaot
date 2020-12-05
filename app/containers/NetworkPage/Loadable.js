@@ -1,5 +1,5 @@
 /**
- * Asynchronously loads the component for HomePage
+ * Asynchronously loads the component for NetworkPage
  */
 
 import loadable from 'utils/loadable';
