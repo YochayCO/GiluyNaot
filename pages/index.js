@@ -1,5 +1,6 @@
-import Head from 'next/head'
-import OwnershipNetwork from "../components/OwnershipNetwork";
+import React from 'react';
+import Head from 'next/head';
+import OwnershipNetwork from '../components/OwnershipNetwork';
 
 export default function Home() {
   return (
@@ -10,9 +11,7 @@ export default function Home() {
       </Head>
 
       <main>
-        <h1 className="title">
-         גילוי נאות
-        </h1>
+        <h1 className="title">גילוי נאות</h1>
 
         <OwnershipNetwork />
       </main>
@@ -59,5 +58,5 @@ export default function Home() {
         }
       `}</style>
     </div>
-  )
+  );
 }
