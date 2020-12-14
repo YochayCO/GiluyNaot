@@ -14,7 +14,7 @@ export default function Home() {
          גילוי נאות
         </h1>
 
-        <OwnershipNetwork />
+        {/* <OwnershipNetwork /> */}
       </main>
 
       <style jsx>{`
