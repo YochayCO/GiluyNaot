@@ -77,15 +77,24 @@ export default class OwnershipNetwork extends React.Component {
     this.state = {
       chartOptions: {
         chart: { type: 'networkgraph' },
-        series: [
-          {
-            data,
-            nodes,
+        plotOptions: {
+          series: {
             dataLabels: {
               enabled: true,
               format: '{point.name}',
               linkFormat: '{point.custom.label}',
             },
+            layoutAlgorithm: {
+              attractiveForce: () => 1,
+              repulsiveForce: () => 1,
+              initialPositions: () => this.state.chartOptions.series[0].nodes,
+            },
+          },
+        },
+        series: [
+          {
+            data,
+            nodes,
           },
         ],
         title: 'הון שלטון',
