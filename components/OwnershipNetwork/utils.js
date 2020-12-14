@@ -1,16 +1,20 @@
-import { DataSet } from 'vis';
-
 function parseNodes(people, companies) {
-  const bigCompanies = companies.filter(company => !!company.data.owners);
-  const nodeCompanies = bigCompanies.map(({ id, label, childCompanies }) => ({
+  const nodeCompanies = companies
+    .filter((company) => !!company.data.owners)
+    .map(({ id, name }) => ({
+      id,
+      name,
+      marker: { radius: 50, symbol: 'square' },
+      mass: 10,
+    }));
+  const nodePeople = people.map(({ id, name }) => ({
     id,
-    label,
-    childCompanies,
+    name,
+    marker: { radius: 40 },
+    mass: 50,
   }));
 
-  const nodePeople = people.map(({ id, label }) => ({ id, label }));
-
-  return new DataSet([...nodeCompanies, ...nodePeople]);
+  return [...nodeCompanies, ...nodePeople];
 }
 
 function parseEdges(people) {
@@ -18,14 +22,15 @@ function parseEdges(people) {
     .map(({ id, data }) => {
       const { owns, relatives } = data;
 
-      const ownEdges = owns.map(companyId => ({
+      const ownEdges = owns.map((companyId) => ({
         from: id,
         to: companyId,
-        stam: 'bla',
+        custom: { label: 'owns' },
       }));
-      const relationEdges = relatives.map(({ id: relativeId }) => ({
+      const relationEdges = relatives.map(({ id: relativeId, relation }) => ({
         from: id,
         to: relativeId,
+        custom: { label: relation },
       }));
 
       return [...ownEdges, ...relationEdges];
@@ -41,12 +46,12 @@ function parseEdges(people) {
       }
       return uniqueEdges.concat(currEdge);
     }, []);
-  return new DataSet(edges);
+  return edges;
 }
 
 export function parseNetwork(people, companies) {
+  const data = parseEdges(people, companies);
   const nodes = parseNodes(people, companies);
-  const edges = parseEdges(people, companies);
 
-  return { nodes, edges };
+  return { data, nodes };
 }
