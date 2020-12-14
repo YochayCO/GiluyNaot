@@ -1,18 +1,30 @@
 function parseNodes(people, companies) {
+  // TODO: better positioning
+  let x1 = 100;
+  let x2 = 100;
   const nodeCompanies = companies
     .filter((company) => !!company.data.owners)
-    .map(({ id, name }) => ({
+    .map(({ id, name }) => {
+      x1 += 200;
+      return {
+        id,
+        name,
+        marker: { radius: 50, symbol: 'square' },
+        plotX: x1,
+        plotY: 350,
+      };
+    });
+  const nodePeople = people.map(({ id, name }) => {
+    x2 += 100;
+    return {
       id,
       name,
-      marker: { radius: 50, symbol: 'square' },
-      mass: 10,
-    }));
-  const nodePeople = people.map(({ id, name }) => ({
-    id,
-    name,
-    marker: { radius: 40 },
-    mass: 50,
-  }));
+      marker: { radius: 40 },
+      plotX: x2,
+      plotY: 70,
+      mass: 1,
+    };
+  });
 
   return [...nodeCompanies, ...nodePeople];
 }
