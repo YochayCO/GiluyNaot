@@ -1,8 +1,11 @@
 import React from 'react';
 import Head from 'next/head';
+import PropTypes from 'prop-types';
 import OwnershipNetwork from '../components/OwnershipNetwork';
+import { getAllPeople } from '../lib/api';
 
-export default function Home() {
+export default function Home({ people }) {
+  console.log(people);
   return (
     <div className="container">
       <Head>
@@ -59,4 +62,16 @@ export default function Home() {
       `}</style>
     </div>
   );
+}
+
+Home.propTypes = {
+  people: PropTypes.array,
+};
+
+export async function getStaticProps() {
+  const people = (await getAllPeople()) || [];
+
+  return {
+    props: { people },
+  };
 }
