@@ -2,10 +2,20 @@ import React from 'react';
 import Head from 'next/head';
 import PropTypes from 'prop-types';
 import OwnershipNetwork from '../components/OwnershipNetwork';
-import { getAllPeople } from '../lib/api';
+import { getNetwork } from '../lib/api';
 
-export default function Home({ people }) {
+export default function Home({
+  people,
+  companies,
+  companyOwnerships,
+  ownerships,
+  relationships,
+}) {
   console.log(people);
+  console.log(companies);
+  console.log(companyOwnerships);
+  console.log(ownerships);
+  console.log(relationships);
   return (
     <div className="container">
       <Head>
@@ -66,12 +76,17 @@ export default function Home({ people }) {
 
 Home.propTypes = {
   people: PropTypes.array,
+  companies: PropTypes.array,
+  companyOwnerships: PropTypes.array,
+  ownerships: PropTypes.array,
+  relationships: PropTypes.array,
 };
 
 export async function getStaticProps() {
-  const people = (await getAllPeople()) || [];
+  const { people, companies, companyOwnerships, ownerships, relationships } =
+    (await getNetwork()) || [];
 
   return {
-    props: { people },
+    props: { people, companies, companyOwnerships, ownerships, relationships },
   };
 }
