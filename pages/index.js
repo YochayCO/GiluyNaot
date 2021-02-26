@@ -11,11 +11,6 @@ export default function Home({
   ownerships,
   relationships,
 }) {
-  console.log(people);
-  console.log(companies);
-  console.log(companyOwnerships);
-  console.log(ownerships);
-  console.log(relationships);
   return (
     <div className="container">
       <Head>
@@ -26,7 +21,13 @@ export default function Home({
       <main>
         <h1 className="title">גילוי נאות</h1>
 
-        <OwnershipNetwork />
+        <OwnershipNetwork
+          people={people}
+          companies={companies}
+          companyOwnerships={companyOwnerships}
+          ownerships={ownerships}
+          relationships={relationships}
+        />
       </main>
 
       <style jsx>{`
