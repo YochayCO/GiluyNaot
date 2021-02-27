@@ -32,35 +32,28 @@ export default function Home({
 
       <style jsx>{`
         .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
+          height: 100%;
         }
-
         main {
-          padding: 5rem 0;
-          flex: 1;
           display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
+          flex-flow: column;
+          height: 100%;
         }
-
         .title {
+          flex: 1 1 auto;
           margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
+          font-size: 65px;
+          height: 14vh;
           text-align: center;
         }
       `}</style>
 
       <style jsx global>{`
         html,
-        body {
-          padding: 0;
+        body,
+        #__next,
+        .container {
+          height: 100%;
           margin: 0;
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
             Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
