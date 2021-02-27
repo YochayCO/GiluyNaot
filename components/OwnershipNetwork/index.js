@@ -1,110 +1,96 @@
 import React from 'react';
-import Highcharts from 'highcharts';
-import HighchartsNetworkGraph from 'highcharts/modules/networkgraph';
-import HighchartsReact from 'highcharts-react-official';
+import { Network } from 'vis';
+import styled from 'styled-components';
 
 import { parseNetwork } from './utils';
 
-if (typeof Highcharts === 'object') {
-  HighchartsNetworkGraph(Highcharts);
-}
+const NetworkContainer = styled.div`
+  border: 1px solid lightgray;
+`;
+
+const colors = {
+  red: '#ffadad',
+  green: '#adffad',
+  purple: '#adadff',
+};
 
 export default class OwnershipNetwork extends React.Component {
   constructor(props) {
     super(props);
-    // create an array with nodes
-    const people = [
-      {
-        id: 5,
-        name: 'ענת אגמון',
-        data: { relatives: [{ id: 8, relation: 'divorced' }], owns: [1] },
-      },
-      {
-        id: 6,
-        name: 'אלונה בר-און',
-        data: { relatives: [{ id: 10, relation: 'daughter' }], owns: [1, 7] },
-      },
-      {
-        id: 8,
-        name: 'מריוס נכט',
-        data: { relatives: [{ id: 5, relation: 'divorced' }], owns: [9] },
-      },
-      {
-        id: 10,
-        name: 'עדנה בר-און',
-        data: { relatives: [{ id: 6, relation: 'mother' }], owns: [] },
-      },
-    ];
+    this.network = {};
+    this.networkRef = React.createRef();
+  }
 
-    const companies = [
-      {
-        id: 1,
-        name: 'גלובס',
-        data: {
-          owners: [{ id: 6, percent: 100 }],
-          childCompanies: [2, 3, 4],
-          isComm: true,
+  componentDidMount() {
+    const data = parseNetwork(this.props);
+    const container = document.getElementById('mynetwork');
+    const options = {
+      layout: {
+        hierarchical: {
+          nodeSpacing: 200,
         },
       },
-      {
-        id: 2,
-        name: 'יומון כלכלי',
-        data: { fatherCompany: 'globes', isComm: true },
+      physics: {
+        enabled: false,
       },
-      {
-        id: 3,
-        name: 'דפוס כספים',
-        data: { fatherCompany: 'globes', isComm: true },
+      interaction: {
+        hover: true,
       },
-      {
-        id: 4,
-        name: 'אתר גלובס',
-        data: { fatherCompany: 'globes', isComm: true },
-      },
-      {
-        id: 7,
-        name: 'בית וגג',
-        data: { owners: [{ id: 6, percent: 100 }] },
-      },
-      {
-        id: 9,
-        name: `צ'ק פוינט`,
-        data: { owners: [{ id: 8, percent: 100 }] },
-      },
-    ];
-    const { data, nodes } = parseNetwork(people, companies);
-
-    this.state = {
-      chartOptions: {
-        chart: { type: 'networkgraph' },
-        plotOptions: {
-          series: {
-            dataLabels: {
-              enabled: true,
-              format: '{point.name}',
-              linkFormat: '{point.custom.label}',
-            },
-            layoutAlgorithm: {
-              attractiveForce: () => 1,
-              repulsiveForce: () => 1,
-              initialPositions: () => this.state.chartOptions.series[0].nodes,
-            },
-          },
+      nodes: {
+        font: {
+          size: 15,
         },
-        series: [
-          {
-            data,
-            nodes,
-          },
-        ],
-        title: 'הון שלטון',
+      },
+      groups: {
+        person: {
+          level: 1,
+          shape: 'circle',
+          widthConstraint: 80,
+          color: colors.red,
+        },
+        big_profit_company: {
+          shape: 'box',
+          widthConstraint: 130,
+          heightConstraint: 70,
+          level: 2,
+          color: colors.green,
+        },
+        small_profit_company: {
+          shape: 'box',
+          widthConstraint: 130,
+          heightConstraint: 40,
+          level: 3,
+          color: colors.green,
+        },
+        big_comm_company: {
+          shape: 'box',
+          widthConstraint: 130,
+          heightConstraint: 70,
+          level: 2,
+          color: colors.purple,
+        },
+        small_comm_company: {
+          shape: 'box',
+          widthConstraint: 130,
+          heightConstraint: 40,
+          level: 3,
+          color: colors.purple,
+        },
+      },
+      edges: {
+        width: 2,
+        arrows: {
+          to: true,
+        },
       },
     };
+    this.network = new Network(container, data, options);
+    this.network.once('afterDrawing', () => {
+      container.style.height = '85vh';
+    });
   }
 
   render() {
-    const options = this.state.chartOptions;
-
-    return <HighchartsReact highcharts={Highcharts} options={options} />;
+    return <NetworkContainer id="mynetwork" ref={this.networkRef} />;
   }
 }

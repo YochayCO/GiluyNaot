@@ -1,69 +1,46 @@
-function parseNodes(people, companies) {
-  // TODO: better positioning
-  let x1 = 100;
-  let x2 = 100;
-  const nodeCompanies = companies
-    .filter((company) => !!company.data.owners)
-    .map(({ id, name }) => {
-      x1 += 200;
-      return {
-        id,
-        name,
-        marker: { radius: 50, symbol: 'square' },
-        plotX: x1,
-        plotY: 350,
-      };
-    });
-  const nodePeople = people.map(({ id, name }) => {
-    x2 += 100;
-    return {
-      id,
-      name,
-      marker: { radius: 40 },
-      plotX: x2,
-      plotY: 70,
-      mass: 1,
-    };
+import { DataSet } from 'vis';
+
+export function parseNetwork({ people, companies, companyOwnerships, ownerships, relationships }) {    
+  const peopleNodes = people.map(({ id, name }) => ({
+    id: `person_${id}`,
+    label: name,
+    group: 'person',
+  }));
+  const companyNodes = companies.map(({ id, name, is_comm, parent_relation }) => {
+    const companyType = is_comm ? 'comm' : 'profit';
+    const companySize = parent_relation ? 'small' : 'big';
+
+    return ({
+      id: `company_${id}`,
+      label: name,
+      group: `${companySize}_${companyType}_company`,
+    }) 
   });
+  const companyOwnershipEdges = companyOwnerships.map(({ id, parent, subsidiary }) => ({
+    id: `companyOwnership_${id}`,
+    from: `company_${parent.id}`,
+    to: `company_${subsidiary.id}`,
+  }));
+  const ownershipEdges = ownerships.map(({ id, owner, company }) => ({
+    id: `ownership_${id}`,
+    from: `person_${owner.id}`,
+    to: `company_${company.id}`,
+  }));
+  const relationshipEdges = relationships.map(({ id, relative_1, relative_2, relationType }) => ({
+    id: `relationship_${id}`,
+    label: relationType,
+    from: `person_${relative_1.id}`,
+    to: `person_${relative_2.id}`,
+    arrows: {
+      from: true,
+    }
+  }));
 
-  return [...nodeCompanies, ...nodePeople];
-}
+  const nodes = [].concat(peopleNodes, companyNodes);
+  const edges = [].concat(companyOwnershipEdges, ownershipEdges, relationshipEdges);
 
-function parseEdges(people) {
-  const edges = people
-    .map(({ id, data }) => {
-      const { owns, relatives } = data;
-
-      const ownEdges = owns.map((companyId) => ({
-        from: id,
-        to: companyId,
-        custom: { label: 'owns' },
-      }));
-      const relationEdges = relatives.map(({ id: relativeId, relation }) => ({
-        from: id,
-        to: relativeId,
-        custom: { label: relation },
-      }));
-
-      return [...ownEdges, ...relationEdges];
-    })
-    .flat()
-    .reduce((uniqueEdges, currEdge) => {
-      if (
-        uniqueEdges.some(
-          ({ to, from }) => to === currEdge.from && from === currEdge.to,
-        )
-      ) {
-        return uniqueEdges;
-      }
-      return uniqueEdges.concat(currEdge);
-    }, []);
-  return edges;
-}
-
-export function parseNetwork(people, companies) {
-  const data = parseEdges(people, companies);
-  const nodes = parseNodes(people, companies);
-
-  return { data, nodes };
+  return {
+    nodes: new DataSet(nodes),
+    edges: new DataSet(edges),
+  }
 }
