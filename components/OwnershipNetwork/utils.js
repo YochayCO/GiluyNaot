@@ -16,15 +16,19 @@ export function parseNetwork({ people, companies, companyOwnerships, ownerships,
       group: `${companySize}_${companyType}_company`,
     }) 
   });
-  const companyOwnershipEdges = companyOwnerships.map(({ id, parent, subsidiary }) => ({
+  const companyOwnershipEdges = companyOwnerships.map(({ id, parent, subsidiary, level }) => ({
     id: `companyOwnership_${id}`,
     from: `company_${parent.id}`,
     to: `company_${subsidiary.id}`,
+    color: { color: '#000000' },
+    dashes: (level == 'partial'),
   }));
-  const ownershipEdges = ownerships.map(({ id, owner, company }) => ({
+  const ownershipEdges = ownerships.map(({ id, owner, company, level }) => ({
     id: `ownership_${id}`,
     from: `person_${owner.id}`,
     to: `company_${company.id}`,
+    color: { color: '#000000' },
+    dashes: (level == 'partial'),
   }));
   const relationshipEdges = relationships.map(({ id, relative_1, relative_2, relationType }) => ({
     id: `relationship_${id}`,
