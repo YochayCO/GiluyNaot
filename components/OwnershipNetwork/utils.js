@@ -1,7 +1,13 @@
 /* eslint-disable camelcase */
 import { DataSet } from 'vis';
 
-export function parseNetwork({
+const colors = {
+  red: '#ffadad',
+  green: '#adffad',
+  purple: '#adadff',
+};
+
+export function parseToVisNetwork({
   people,
   companies,
   companyOwnerships,
@@ -19,9 +25,16 @@ export function parseNetwork({
     return {
       id: `person_${id}`,
       label: name,
-      shape,
-      group: 'person',
+      level: 1,
+      borderWidth: 4,
+      color: colors.red,
       image: imageUrl,
+      shape,
+      size: 43,
+      shapeProperties: {
+        useBorderWithImage: true,
+      },
+      widthConstraint: 80,
     };
   });
 
@@ -39,9 +52,16 @@ export function parseNetwork({
       return {
         id: `company_${id}`,
         label: name,
-        shape,
-        group: `${companySize}_${companyType}_company`,
+        level: companySize === 'big' ? 2 : 3,
+        borderWidth: companySize === 'big' ? 4 : 2,
+        color: companyType === 'comm' ? colors.purple : colors.green,
+        heightConstraint: 40,
         image: imageUrl,
+        shape,
+        shapeProperties: {
+          useBorderWithImage: true,
+        },
+        widthConstraint: 130,
       };
     },
   );

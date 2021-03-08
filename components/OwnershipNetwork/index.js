@@ -2,17 +2,11 @@ import React from 'react';
 import { Network } from 'vis';
 import styled from 'styled-components';
 
-import { parseNetwork } from './utils';
+import { parseToVisNetwork } from './utils';
 
 const NetworkContainer = styled.div`
   border: 1px solid lightgray;
 `;
-
-const colors = {
-  red: '#ffadad',
-  green: '#adffad',
-  purple: '#adadff',
-};
 
 export default class OwnershipNetwork extends React.Component {
   constructor(props) {
@@ -22,7 +16,7 @@ export default class OwnershipNetwork extends React.Component {
   }
 
   componentDidMount() {
-    const data = parseNetwork(this.props);
+    const data = parseToVisNetwork(this.props);
     const container = document.getElementById('mynetwork');
     const options = {
       layout: {
@@ -39,47 +33,6 @@ export default class OwnershipNetwork extends React.Component {
       nodes: {
         font: {
           size: 15,
-        },
-      },
-      groups: {
-        person: {
-          borderWidth: 4,
-          color: colors.red,
-          level: 1,
-          size: 43,
-          shapeProperties: {
-            useBorderWithImage: true,
-          },
-          widthConstraint: 80,
-        },
-        big_profit_company: {
-          borderWidth: 4,
-          color: colors.green,
-          heightConstraint: 40,
-          level: 2,
-          widthConstraint: 130,
-        },
-        small_profit_company: {
-          color: colors.green,
-          heightConstraint: 40,
-          level: 3,
-          widthConstraint: 130,
-        },
-        big_comm_company: {
-          borderWidth: 4,
-          color: colors.purple,
-          heightConstraint: 40,
-          level: 2,
-          shapeProperties: {
-            useBorderWithImage: true,
-          },
-          widthConstraint: 130,
-        },
-        small_comm_company: {
-          color: colors.purple,
-          heightConstraint: 40,
-          level: 3,
-          widthConstraint: 130,
         },
       },
       edges: {
