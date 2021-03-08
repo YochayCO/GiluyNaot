@@ -18,7 +18,7 @@ export function parseToVisNetwork({
     let imageUrl;
     let shape = 'circle';
     if (picture) {
-      imageUrl = `${process.env.NEXT_PUBLIC_STRAPI_API_URL}${picture.url}`;
+      imageUrl = `/api${picture.url}`;
       shape = 'circularImage';
     }
 
@@ -45,7 +45,7 @@ export function parseToVisNetwork({
       let imageUrl;
       let shape = 'box';
       if (picture) {
-        imageUrl = `${process.env.NEXT_PUBLIC_STRAPI_API_URL}${picture.url}`;
+        imageUrl = `/api${picture.url}`;
         shape = 'image';
       }
 
