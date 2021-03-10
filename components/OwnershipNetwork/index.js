@@ -44,7 +44,7 @@ export default class OwnershipNetwork extends React.Component {
     };
     this.network = new Network(container, data, options);
     this.network.once('afterDrawing', () => {
-      container.style.height = '85vh';
+      container.style.height = '90vh';
     });
   }
 
