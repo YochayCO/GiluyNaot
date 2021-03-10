@@ -76,7 +76,7 @@ Home.propTypes = {
   relationships: PropTypes.array,
 };
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { people, companies, companyOwnerships, ownerships, relationships } =
     (await getNetwork()) || [];
 
