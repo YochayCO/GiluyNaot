@@ -60,6 +60,7 @@ export function parseToVisNetwork({
         shape,
         shapeProperties: {
           useBorderWithImage: true,
+          borderRadius: 0,
         },
         widthConstraint: 130,
       };
