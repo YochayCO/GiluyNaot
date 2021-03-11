@@ -1,6 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import PropTypes from 'prop-types';
+import Header from '../components/Header';
 import OwnershipNetwork from '../components/OwnershipNetwork';
 import { getNetwork } from '../lib/api';
 
@@ -19,7 +20,7 @@ export default function Home({
       </Head>
 
       <main>
-        <h1 className="title">גילוי נאות</h1>
+        <Header />
 
         <OwnershipNetwork
           people={people}
@@ -38,13 +39,6 @@ export default function Home({
           display: flex;
           flex-flow: column;
           height: 100%;
-        }
-        .title {
-          flex: 1 1 auto;
-          margin: 0;
-          font-size: 65px;
-          height: 14vh;
-          text-align: center;
         }
       `}</style>
 
