@@ -1,5 +1,6 @@
 import React from 'react';
 import { Network } from 'vis';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import { parseToVisNetwork } from './utils';
@@ -16,7 +17,22 @@ export default class OwnershipNetwork extends React.Component {
   }
 
   componentDidMount() {
-    const data = parseToVisNetwork(this.props);
+    const {
+      deployMode,
+      people,
+      companies,
+      companyOwnerships,
+      ownerships,
+      relationships,
+    } = this.props;
+    const data = parseToVisNetwork({
+      deployMode,
+      people,
+      companies,
+      companyOwnerships,
+      ownerships,
+      relationships,
+    });
     const container = document.getElementById('mynetwork');
     const options = {
       layout: {
@@ -52,3 +68,12 @@ export default class OwnershipNetwork extends React.Component {
     return <NetworkContainer id="mynetwork" ref={this.networkRef} />;
   }
 }
+
+OwnershipNetwork.propTypes = {
+  deployMode: PropTypes.string,
+  people: PropTypes.array,
+  companies: PropTypes.array,
+  companyOwnerships: PropTypes.array,
+  ownerships: PropTypes.array,
+  relationships: PropTypes.array,
+};

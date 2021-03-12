@@ -6,6 +6,7 @@ import OwnershipNetwork from '../components/OwnershipNetwork';
 import { getNetwork } from '../lib/api';
 
 export default function Home({
+  deployMode,
   people,
   companies,
   companyOwnerships,
@@ -23,6 +24,7 @@ export default function Home({
         <Header />
 
         <OwnershipNetwork
+          deployMode={deployMode}
           people={people}
           companies={companies}
           companyOwnerships={companyOwnerships}
@@ -63,6 +65,7 @@ export default function Home({
 }
 
 Home.propTypes = {
+  deployMode: PropTypes.string,
   people: PropTypes.array,
   companies: PropTypes.array,
   companyOwnerships: PropTypes.array,
@@ -71,10 +74,18 @@ Home.propTypes = {
 };
 
 export async function getServerSideProps() {
+  const deployMode = process.env.DEPLOY_MODE || 'development';
   const { people, companies, companyOwnerships, ownerships, relationships } =
     (await getNetwork()) || [];
 
   return {
-    props: { people, companies, companyOwnerships, ownerships, relationships },
+    props: {
+      deployMode,
+      people,
+      companies,
+      companyOwnerships,
+      ownerships,
+      relationships,
+    },
   };
 }

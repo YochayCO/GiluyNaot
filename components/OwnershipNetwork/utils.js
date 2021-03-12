@@ -14,7 +14,9 @@ export function parseToVisNetwork({
   ownerships,
   relationships,
 }) {
-  const peopleNodes = people.map(({ id, name, picture }) => {
+  const smooth = {
+    type: deployMode === 'development' ? 'discrete' : 'dynamic',
+  };
     let imageUrl;
     let shape = 'circle';
     if (picture) {
@@ -73,6 +75,7 @@ export function parseToVisNetwork({
       to: `company_${subsidiary.id}`,
       color: { color: '#000000' },
       dashes: level === 'partial',
+      smooth,
     }),
   );
   const ownershipEdges = ownerships.map(({ id, owner, company, level }) => ({
@@ -81,6 +84,7 @@ export function parseToVisNetwork({
     to: `company_${company.id}`,
     color: { color: '#000000' },
     dashes: level === 'partial',
+    smooth,
   }));
   const relationshipEdges = relationships.map(
     ({ id, relative_1, relative_2, relationType }) => ({
@@ -88,6 +92,7 @@ export function parseToVisNetwork({
       label: relationType,
       from: `person_${relative_1.id}`,
       to: `person_${relative_2.id}`,
+      smooth: { type: 'diagonalCross' },
       arrows: {
         from: true,
       },
