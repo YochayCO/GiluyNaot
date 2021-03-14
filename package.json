@@ -11,7 +11,9 @@
     "heroku-postbuild": "npm run build"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "next": "^10.0.0",
+    "nookies": "^2.5.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "styled-components": "^5.2.1",

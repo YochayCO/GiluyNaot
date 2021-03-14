@@ -18,7 +18,7 @@ export default class OwnershipNetwork extends React.Component {
 
   componentDidMount() {
     const {
-      deployMode,
+      user,
       people,
       companies,
       companyOwnerships,
@@ -26,7 +26,7 @@ export default class OwnershipNetwork extends React.Component {
       relationships,
     } = this.props;
     const data = parseToVisNetwork({
-      deployMode,
+      user,
       people,
       companies,
       companyOwnerships,
@@ -70,7 +70,13 @@ export default class OwnershipNetwork extends React.Component {
 }
 
 OwnershipNetwork.propTypes = {
-  deployMode: PropTypes.string,
+  user: PropTypes.shape({
+    username: PropTypes.string,
+    role: PropTypes.shape({
+      name: PropTypes.string,
+      type: PropTypes.string,
+    }),
+  }),
   people: PropTypes.array,
   companies: PropTypes.array,
   companyOwnerships: PropTypes.array,
