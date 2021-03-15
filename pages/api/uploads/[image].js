@@ -1,4 +1,4 @@
 export default function handler(req, res) {
   const { image } = req.query;
-  res.redirect(`${process.env.STRAPAPOO_URL}/uploads/${image}`);
+  res.redirect(`${process.env.NEXT_PUBLIC_STRAPAPOO_URL}/uploads/${image}`);
 }

@@ -3,7 +3,8 @@ import { Network } from 'vis';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { parseToVisNetwork } from './utils';
+import { parseToVisNetwork, X_DISTANCE, Y_DISTANCE } from './utils';
+import { changeNodePosition } from '../../lib/api';
 
 const NetworkContainer = styled.div`
   border: 1px solid lightgray;
@@ -15,6 +16,21 @@ export default class OwnershipNetwork extends React.Component {
     this.network = {};
     this.networkRef = React.createRef();
   }
+
+  moveNode = (e) => {
+    const movedNodeId = e.nodes[0];
+    if (!movedNodeId) return;
+
+    const newPosition = this.network.getPositions(movedNodeId)[movedNodeId];
+    const roundedPosition = {
+      x: Math.round(newPosition.x / X_DISTANCE) * X_DISTANCE,
+      y: Math.round(newPosition.y / Y_DISTANCE) * Y_DISTANCE,
+    };
+    this.network.moveNode(movedNodeId, roundedPosition.x, roundedPosition.y);
+    if (this.props.user.role.type === 'editor') {
+      changeNodePosition(movedNodeId, roundedPosition.x, roundedPosition.y);
+    }
+  };
 
   componentDidMount() {
     const {
@@ -35,11 +51,6 @@ export default class OwnershipNetwork extends React.Component {
     });
     const container = document.getElementById('mynetwork');
     const options = {
-      layout: {
-        hierarchical: {
-          nodeSpacing: 200,
-        },
-      },
       physics: {
         enabled: false,
       },
@@ -62,6 +73,7 @@ export default class OwnershipNetwork extends React.Component {
     this.network.once('afterDrawing', () => {
       container.style.height = '90vh';
     });
+    this.network.on('dragEnd', this.moveNode);
   }
 
   render() {
