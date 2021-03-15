@@ -7,39 +7,50 @@ const colors = {
   purple: '#adadff',
 };
 
+export const X_DISTANCE = 200;
+export const Y_DISTANCE = 150;
+
 export function parseToVisNetwork({
+  user,
   people,
   companies,
   companyOwnerships,
   ownerships,
   relationships,
 }) {
-  const peopleNodes = people.map(({ id, name, picture }) => {
-    let imageUrl;
-    let shape = 'circle';
-    if (picture) {
-      imageUrl = `/api${picture.url}`;
-      shape = 'circularImage';
-    }
+  const smooth = {
+    type: user.role.type === 'editor' ? 'discrete' : 'dynamic',
+  };
 
-    return {
-      id: `person_${id}`,
-      label: name,
-      level: 1,
-      borderWidth: 4,
-      color: colors.red,
-      image: imageUrl,
-      shape,
-      size: 43,
-      shapeProperties: {
-        useBorderWithImage: true,
-      },
-      widthConstraint: 80,
-    };
-  });
+  const peopleNodes = people.map(
+    ({ id, name, picture, xPosition, yPosition }) => {
+      let imageUrl;
+      let shape = 'circle';
+      if (picture) {
+        imageUrl = `/api${picture.url}`;
+        shape = 'circularImage';
+      }
+
+      return {
+        id: `person_${id}`,
+        label: name,
+        x: xPosition === null ? id * X_DISTANCE : xPosition,
+        y: yPosition === null ? -1 * Y_DISTANCE : yPosition,
+        borderWidth: 4,
+        color: colors.red,
+        image: imageUrl,
+        shape,
+        size: 43,
+        shapeProperties: {
+          useBorderWithImage: true,
+        },
+        widthConstraint: 80,
+      };
+    },
+  );
 
   const companyNodes = companies.map(
-    ({ id, name, is_comm, picture, parent_relation }) => {
+    ({ id, name, is_comm, picture, parent_relation, xPosition, yPosition }) => {
       const companyType = is_comm ? 'comm' : 'profit';
       const companySize = parent_relation ? 'small' : 'big';
       let imageUrl;
@@ -48,11 +59,13 @@ export function parseToVisNetwork({
         imageUrl = `/api${picture.url}`;
         shape = 'image';
       }
+      const defaultCompanyYPosition = companySize === 'big' ? 0 : Y_DISTANCE;
 
       return {
         id: `company_${id}`,
         label: name,
-        level: companySize === 'big' ? 2 : 3,
+        x: xPosition === null ? id * X_DISTANCE : xPosition,
+        y: yPosition === null ? defaultCompanyYPosition : yPosition,
         borderWidth: companySize === 'big' ? 4 : 2,
         color: companyType === 'comm' ? colors.purple : colors.green,
         heightConstraint: 40,
@@ -73,6 +86,7 @@ export function parseToVisNetwork({
       to: `company_${subsidiary.id}`,
       color: { color: '#000000' },
       dashes: level === 'partial',
+      smooth,
     }),
   );
   const ownershipEdges = ownerships.map(({ id, owner, company, level }) => ({
@@ -81,6 +95,7 @@ export function parseToVisNetwork({
     to: `company_${company.id}`,
     color: { color: '#000000' },
     dashes: level === 'partial',
+    smooth,
   }));
   const relationshipEdges = relationships.map(
     ({ id, relative_1, relative_2, relationType }) => ({
@@ -88,6 +103,7 @@ export function parseToVisNetwork({
       label: relationType,
       from: `person_${relative_1.id}`,
       to: `person_${relative_2.id}`,
+      smooth: { type: 'diagonalCross' },
       arrows: {
         from: true,
       },

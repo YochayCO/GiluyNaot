@@ -3,9 +3,10 @@ import Head from 'next/head';
 import PropTypes from 'prop-types';
 import Header from '../components/Header';
 import OwnershipNetwork from '../components/OwnershipNetwork';
-import { getNetwork } from '../lib/api';
+import { loginAndInitAPI, getNetwork } from '../lib/api';
 
 export default function Home({
+  user,
   people,
   companies,
   companyOwnerships,
@@ -23,6 +24,7 @@ export default function Home({
         <Header />
 
         <OwnershipNetwork
+          user={user}
           people={people}
           companies={companies}
           companyOwnerships={companyOwnerships}
@@ -63,6 +65,13 @@ export default function Home({
 }
 
 Home.propTypes = {
+  user: PropTypes.shape({
+    username: PropTypes.string,
+    role: PropTypes.shape({
+      name: PropTypes.string,
+      type: PropTypes.string,
+    }),
+  }),
   people: PropTypes.array,
   companies: PropTypes.array,
   companyOwnerships: PropTypes.array,
@@ -70,11 +79,20 @@ Home.propTypes = {
   relationships: PropTypes.array,
 };
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx) {
+  const user = await loginAndInitAPI(ctx);
+
   const { people, companies, companyOwnerships, ownerships, relationships } =
     (await getNetwork()) || [];
 
   return {
-    props: { people, companies, companyOwnerships, ownerships, relationships },
+    props: {
+      user,
+      people,
+      companies,
+      companyOwnerships,
+      ownerships,
+      relationships,
+    },
   };
 }
