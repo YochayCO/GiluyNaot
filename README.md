@@ -7,7 +7,7 @@
 ### First run:
 
 - git clone
-- npm install
+- yarn
 - npm run dev
 
 ### Linter:
