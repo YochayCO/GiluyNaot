@@ -13,6 +13,8 @@ export default function Home({
   ownerships,
   relationships,
 }) {
+  if (!user) return null;
+
   return (
     <div className="container">
       <Head>
