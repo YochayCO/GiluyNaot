@@ -7,8 +7,8 @@
 ### First run:
 
 - clone, install & run strapapoo
-- create user for giluy
-- grant this user role read permissions for all entities
+- create "editor" role with read & write permissions + user permissions: connect & me
+- create an editor user for giluy
 
 - git clone
 - create .env.development.local file with strapapoo url, and user details
