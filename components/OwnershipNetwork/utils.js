@@ -5,10 +5,12 @@ import _minBy from 'lodash/minBy';
 import _maxBy from 'lodash/maxBy';
 
 const colors = {
-  red: '#ffadad',
+  partial: '#7f8b8c',
+  full: '#282b2b',
   green: '#adffad',
   purple: '#adadff',
-  white: '#fff',
+  red: '#ff0000',
+  white: '#ffffff88',
 };
 
 export const X_DISTANCE = 20;
@@ -42,8 +44,8 @@ export function parseToVisNetwork({
         label: name,
         x: xPosition === null ? id * X_DISTANCE : xPosition,
         y: yPosition === null ? -1 * Y_DISTANCE : yPosition,
-        borderWidth: 4,
-        color: colors.red,
+        color: colors.partial,
+        font: { color: '#fff' },
         image: imageUrl,
         shape,
         size: 43,
@@ -62,33 +64,22 @@ export function parseToVisNetwork({
   );
 
   const companyNodes = realCompanies.map(
-    ({
-      id,
-      name,
-      is_comm,
-      picture,
-      parent_relation,
-      group_company,
-      xPosition,
-      yPosition,
-    }) => {
+    ({ id, name, is_comm, picture, group_company, xPosition, yPosition }) => {
       const companyType = is_comm ? 'comm' : 'profit';
-      const companySize = parent_relation ? 'small' : 'big';
       let imageUrl;
       let shape = 'box';
       if (picture) {
         imageUrl = `/api${picture.url}`;
         shape = 'image';
       }
-      const defaultCompanyYPosition = companySize === 'big' ? 0 : Y_DISTANCE;
 
       return {
         id: `company_${id}`,
         label: name,
         groupCompany: group_company && group_company.id,
         x: xPosition === null ? id * X_DISTANCE : xPosition,
-        y: yPosition === null ? defaultCompanyYPosition : yPosition,
-        borderWidth: companySize === 'big' ? 4 : 2,
+        y: yPosition === null ? Y_DISTANCE : yPosition,
+        borderWidth: 2,
         color: companyType === 'comm' ? colors.purple : colors.green,
         heightConstraint: MIN_HEIGHT,
         image: imageUrl,
@@ -127,7 +118,7 @@ export function parseToVisNetwork({
         x: centerX,
         y: centerY - MIN_HEIGHT / 2,
         borderWidth: 4,
-        color: colors.white,
+        color: { background: colors.white, border: colors.purple },
         margin: {
           left: marginX,
           right: marginX,
@@ -143,36 +134,72 @@ export function parseToVisNetwork({
       };
     });
 
-  const companyOwnershipEdges = companyOwnerships.map(
-    ({ id, parent, subsidiary, level }) => ({
-      id: `companyOwnership_${id}`,
-      from: `company_${parent.id}`,
-      to: `company_${subsidiary.id}`,
-      color: { color: '#000000' },
-      dashes: level === 'partial',
-      smooth,
-    }),
-  );
-  const ownershipEdges = ownerships.map(({ id, owner, company, level }) => ({
-    id: `ownership_${id}`,
-    from: `person_${owner.id}`,
-    to: `company_${company.id}`,
-    color: { color: '#000000' },
-    dashes: level === 'partial',
-    smooth,
-  }));
-  const relationshipEdges = relationships.map(
-    ({ id, relative_1, relative_2, relationType }) => ({
+  const companyOwnershipEdges = companyOwnerships
+    .filter(({ parent, subsidiary }) => parent && subsidiary)
+    .map(({ id, parent, subsidiary, level }) => {
+      let parentIdType = 'company';
+      let subsidiaryIdType = 'company';
+      if (parent.group_company && parent.group_company.id === parent.id) {
+        parentIdType = 'groupCompany';
+      }
+      if (
+        subsidiary.group_company &&
+        subsidiary.group_company.id === subsidiary.id
+      ) {
+        subsidiaryIdType = 'groupCompany';
+      }
+
+      return {
+        id: `companyOwnership_${id}`,
+        from: `${parentIdType}_${parent.id}`,
+        to: `${subsidiaryIdType}_${subsidiary.id}`,
+        color: { color: colors[level] },
+        arrowStrikethrough: false,
+        dashes: level === 'partial',
+        smooth,
+      };
+    });
+
+  const ownershipEdges = ownerships
+    .filter(({ owner, company }) => owner && company)
+    .map(({ id, owner, company, level }) => {
+      let companyIdType = 'company';
+
+      if (company.group_company && company.group_company.id === company.id) {
+        companyIdType = 'groupCompany';
+      }
+
+      if (level === 'full') {
+        const ownerNode = peopleNodes.find(
+          (personNode) => personNode.id === `person_${owner.id}`,
+        );
+        ownerNode.color = colors.full;
+      }
+
+      return {
+        id: `ownership_${id}`,
+        from: `person_${owner.id}`,
+        to: `${companyIdType}_${company.id}`,
+        color: { color: colors[level] },
+        arrowStrikethrough: false,
+        dashes: level === 'partial',
+        smooth,
+      };
+    });
+
+  const relationshipEdges = relationships
+    .filter(({ relative_1, relative_2 }) => relative_1 && relative_2)
+    .map(({ id, relative_1, relative_2, relationType }) => ({
       id: `relationship_${id}`,
       label: relationType,
       from: `person_${relative_1.id}`,
       to: `person_${relative_2.id}`,
+      color: colors.red,
       smooth: { type: 'diagonalCross' },
       arrows: {
         from: true,
       },
-    }),
-  );
+    }));
 
   const nodes = [].concat(groupCompanyNodes, peopleNodes, companyNodes);
   const edges = [].concat(
