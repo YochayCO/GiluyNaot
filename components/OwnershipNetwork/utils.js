@@ -7,8 +7,8 @@ const colors = {
   purple: '#adadff',
 };
 
-export const X_DISTANCE = 200;
-export const Y_DISTANCE = 150;
+export const X_DISTANCE = 50;
+export const Y_DISTANCE = 50;
 
 export function parseToVisNetwork({
   user,

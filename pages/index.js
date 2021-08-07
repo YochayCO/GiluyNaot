@@ -84,6 +84,8 @@ Home.propTypes = {
 export async function getServerSideProps(ctx) {
   const user = await loginAndInitAPI(ctx);
 
+  if (!user) return {};
+
   const { people, companies, companyOwnerships, ownerships, relationships } =
     (await getNetwork()) || [];
 
