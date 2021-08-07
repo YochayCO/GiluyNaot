@@ -53,6 +53,7 @@ export default function Home({
         .container {
           height: 100%;
           margin: 0;
+          background-color: #b4fcff6b;
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
             Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
             sans-serif;

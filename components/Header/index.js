@@ -6,7 +6,7 @@ const Container = styled.header`
   .title {
     flex: 1 1 auto;
     margin: 0;
-    font-size: 65px;
+    font-size: 50px;
     text-align: center;
   }
 `;
