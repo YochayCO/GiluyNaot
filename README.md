@@ -6,11 +6,11 @@
 
 ### First run:
 
-- clone, install & run strapapoo
-- create user for giluy
-- grant this user role read permissions for all entities
+- clone, install & run Strapapoo
+- create role "editor" with read & update permissions, and connect & me permissions in the user permissions section
+- create editor user for giluy
 
-- git clone
+- git clone GiluyNaot
 - create .env.development.local file with strapapoo url, and user details
 - yarn
 - npm run dev
