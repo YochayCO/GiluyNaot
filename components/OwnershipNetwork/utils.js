@@ -173,7 +173,9 @@ export function parseToVisNetwork({
         const ownerNode = peopleNodes.find(
           (personNode) => personNode.id === `person_${owner.id}`,
         );
-        ownerNode.color = colors.full;
+        if (ownerNode) {
+          ownerNode.color = colors.full;
+        }
       }
 
       return {
