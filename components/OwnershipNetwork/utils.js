@@ -42,8 +42,8 @@ export function parseToVisNetwork({
       return {
         id: `person_${id}`,
         label: name,
-        x: xPosition === null ? id * X_DISTANCE : xPosition,
-        y: yPosition === null ? -1 * Y_DISTANCE : yPosition,
+        x: xPosition === null ? ((id % 100) % 10) * X_DISTANCE * 10 : xPosition,
+        y: yPosition === null ? (id % 100) * Y_DISTANCE : yPosition,
         color: colors.partial,
         font: { color: '#fff' },
         image: imageUrl,
@@ -76,9 +76,12 @@ export function parseToVisNetwork({
       return {
         id: `company_${id}`,
         label: name,
-        groupCompany: group_company && group_company.id,
-        x: xPosition === null ? id * X_DISTANCE : xPosition,
-        y: yPosition === null ? Y_DISTANCE : yPosition,
+        groupCompany: group_company && xPosition && group_company.id,
+        x:
+          xPosition === null
+            ? ((id % 100) % 10) * X_DISTANCE * 10 - 1000
+            : xPosition,
+        y: yPosition === null ? (id % 100) * Y_DISTANCE * 10 - 1000 : yPosition,
         borderWidth: 2,
         color: companyType === 'comm' ? colors.purple : colors.green,
         heightConstraint: MIN_HEIGHT,
