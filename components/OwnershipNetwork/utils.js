@@ -76,7 +76,7 @@ export function parseToVisNetwork({
       return {
         id: `company_${id}`,
         label: name,
-        groupCompany: group_company && xPosition && group_company.id,
+        groupCompany: group_company && group_company.id,
         x:
           xPosition === null
             ? ((id % 100) % 10) * X_DISTANCE * 10 - 1000
