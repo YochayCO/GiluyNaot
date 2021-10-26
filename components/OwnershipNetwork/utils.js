@@ -3,6 +3,7 @@ import { DataSet } from 'vis';
 import _partition from 'lodash/partition';
 import _minBy from 'lodash/minBy';
 import _maxBy from 'lodash/maxBy';
+import { toInteger } from 'lodash';
 
 const colors = {
   partial: '#7f8b8c',
@@ -18,6 +19,14 @@ export const Y_DISTANCE = 10;
 const MIN_HEIGHT = 40;
 const MIN_WIDTH = 130;
 
+function getPosition({ id, network_section_id, xPosition, yPosition }) {
+  if (xPosition && yPosition) return { x: xPosition, y: yPosition };
+  return {
+    x: ((network_section_id || 0) / 10) * 100 + id * X_DISTANCE * 5,
+    y: toInteger((network_section_id || 0) % 10) * 100,
+  };
+}
+
 export function parseToVisNetwork({
   user,
   people,
@@ -31,9 +40,15 @@ export function parseToVisNetwork({
   };
 
   const peopleNodes = people.map(
-    ({ id, name, picture, xPosition, yPosition }) => {
+    ({ id, name, picture, network_section_id, xPosition, yPosition }) => {
       let imageUrl;
       let shape = 'circle';
+      const position = getPosition({
+        id,
+        network_section_id,
+        xPosition,
+        yPosition,
+      });
       if (picture) {
         imageUrl = `/api${picture.url}`;
         shape = 'circularImage';
@@ -42,8 +57,8 @@ export function parseToVisNetwork({
       return {
         id: `person_${id}`,
         label: name,
-        x: xPosition === null ? ((id % 100) % 10) * X_DISTANCE * 10 : xPosition,
-        y: yPosition === null ? (id % 100) * Y_DISTANCE : yPosition,
+        x: position.x,
+        y: position.y,
         color: colors.partial,
         font: { color: '#fff' },
         image: imageUrl,
@@ -64,8 +79,23 @@ export function parseToVisNetwork({
   );
 
   const companyNodes = realCompanies.map(
-    ({ id, name, is_comm, picture, group_company, xPosition, yPosition }) => {
+    ({
+      id,
+      name,
+      is_comm,
+      picture,
+      group_company,
+      network_section_id,
+      xPosition,
+      yPosition,
+    }) => {
       const companyType = is_comm ? 'comm' : 'profit';
+      const position = getPosition({
+        id,
+        network_section_id,
+        xPosition,
+        yPosition,
+      });
       let imageUrl;
       let shape = 'box';
       if (picture) {
@@ -77,11 +107,8 @@ export function parseToVisNetwork({
         id: `company_${id}`,
         label: name,
         groupCompany: group_company && group_company.id,
-        x:
-          xPosition === null
-            ? ((id % 100) % 10) * X_DISTANCE * 10 - 1000
-            : xPosition,
-        y: yPosition === null ? (id % 100) * Y_DISTANCE * 10 - 1000 : yPosition,
+        x: position.x,
+        y: position.y,
         borderWidth: 2,
         color: companyType === 'comm' ? colors.purple : colors.green,
         heightConstraint: MIN_HEIGHT,
