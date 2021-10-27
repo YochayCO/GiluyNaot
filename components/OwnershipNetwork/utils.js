@@ -19,8 +19,20 @@ export const Y_DISTANCE = 10;
 const MIN_HEIGHT = 40;
 const MIN_WIDTH = 130;
 
-function getPosition({ id, network_section_id, xPosition, yPosition }) {
+function getPosition({
+  id,
+  group_company,
+  network_section_id,
+  xPosition,
+  yPosition,
+}) {
   if (xPosition && yPosition) return { x: xPosition, y: yPosition };
+  if (group_company) {
+    return {
+      x: ((group_company || 0) / 10) * X_DISTANCE * 100 + id * X_DISTANCE * 5,
+      y: (network_section_id || 0) * 100,
+    };
+  }
   return {
     x: ((network_section_id || 0) / 10) * 100 + id * X_DISTANCE * 5,
     y: toInteger((network_section_id || 0) % 10) * 100,
@@ -57,8 +69,8 @@ export function parseToVisNetwork({
       return {
         id: `person_${id}`,
         label: name,
-        x: position.x,
-        y: position.y,
+        x: position.x + 4000,
+        y: position.y - 3000,
         color: colors.partial,
         font: { color: '#fff' },
         image: imageUrl,
