@@ -3,7 +3,6 @@ import { DataSet } from 'vis';
 import _partition from 'lodash/partition';
 import _minBy from 'lodash/minBy';
 import _maxBy from 'lodash/maxBy';
-import { toInteger } from 'lodash';
 
 const colors = {
   partial: '#7f8b8c',
@@ -16,28 +15,8 @@ const colors = {
 
 export const X_DISTANCE = 20;
 export const Y_DISTANCE = 10;
-const MIN_HEIGHT = 40;
-const MIN_WIDTH = 130;
-
-function getPosition({
-  id,
-  group_company,
-  network_section_id,
-  xPosition,
-  yPosition,
-}) {
-  if (xPosition && yPosition) return { x: xPosition, y: yPosition };
-  if (group_company) {
-    return {
-      x: ((group_company || 0) / 10) * X_DISTANCE * 100 + id * X_DISTANCE * 5,
-      y: (network_section_id || 0) * 100,
-    };
-  }
-  return {
-    x: ((network_section_id || 0) / 10) * 100 + id * X_DISTANCE * 5,
-    y: toInteger((network_section_id || 0) % 10) * 100,
-  };
-}
+export const MIN_HEIGHT = 40;
+export const MIN_WIDTH = 130;
 
 export function parseToVisNetwork({
   user,
@@ -52,15 +31,9 @@ export function parseToVisNetwork({
   };
 
   const peopleNodes = people.map(
-    ({ id, name, picture, network_section_id, xPosition, yPosition }) => {
+    ({ id, name, picture, network_section_id }) => {
       let imageUrl;
       let shape = 'circle';
-      const position = getPosition({
-        id,
-        network_section_id,
-        xPosition,
-        yPosition,
-      });
       if (picture) {
         imageUrl = `/api${picture.url}`;
         shape = 'circularImage';
@@ -69,11 +42,10 @@ export function parseToVisNetwork({
       return {
         id: `person_${id}`,
         label: name,
-        x: position.x + 4000,
-        y: position.y - 3000,
         color: colors.partial,
         font: { color: '#fff' },
         image: imageUrl,
+        networkSectionId: network_section_id,
         shape,
         size: 43,
         shapeProperties: {
@@ -84,30 +56,14 @@ export function parseToVisNetwork({
     },
   );
 
-  const [realCompanies, groupCompanies] = _partition(
-    companies,
+  const realCompanies = companies.filter(
     (company) =>
       !company.group_company || company.group_company.id !== company.id,
   );
 
   const companyNodes = realCompanies.map(
-    ({
-      id,
-      name,
-      is_comm,
-      picture,
-      group_company,
-      network_section_id,
-      xPosition,
-      yPosition,
-    }) => {
+    ({ id, name, is_comm, picture, group_company, network_section_id }) => {
       const companyType = is_comm ? 'comm' : 'profit';
-      const position = getPosition({
-        id,
-        network_section_id,
-        xPosition,
-        yPosition,
-      });
       let imageUrl;
       let shape = 'box';
       if (picture) {
@@ -119,12 +75,11 @@ export function parseToVisNetwork({
         id: `company_${id}`,
         label: name,
         groupCompany: group_company && group_company.id,
-        x: position.x,
-        y: position.y,
         borderWidth: 2,
         color: companyType === 'comm' ? colors.purple : colors.green,
         heightConstraint: MIN_HEIGHT,
         image: imageUrl,
+        networkSectionId: network_section_id,
         shape,
         shapeProperties: {
           useBorderWithImage: true,
@@ -135,46 +90,46 @@ export function parseToVisNetwork({
     },
   );
 
-  const groupCompanyNodes = groupCompanies
-    // Ignore groups that do not have real companies
-    .filter(({ id }) =>
-      companyNodes.find((company) => company.groupCompany === id),
-    )
-    .map(({ id, name }) => {
-      const partneredCompanyNodes = companyNodes.filter(
-        (company) => company.groupCompany === id,
-      );
+  // const groupCompanyNodes = groupCompanies
+  //   // Ignore groups that do not have real companies
+  //   .filter(({ id }) =>
+  //     companyNodes.find((company) => company.groupCompany === id),
+  //   )
+  //   .map(({ id, name }) => {
+  //     const partneredCompanyNodes = companyNodes.filter(
+  //       (company) => company.groupCompany === id,
+  //     );
 
-      const minX = _minBy(partneredCompanyNodes, 'x').x;
-      const maxX = _maxBy(partneredCompanyNodes, 'x').x;
-      const centerX = (minX + maxX) / 2;
-      const marginX = (maxX - minX) / 2 + 10;
-      const minY = _minBy(partneredCompanyNodes, 'y').y;
-      const maxY = _maxBy(partneredCompanyNodes, 'y').y;
-      const centerY = (minY + maxY) / 2;
-      const marginY = maxY - minY;
+  //     const minX = _minBy(partneredCompanyNodes, 'x').x;
+  //     const maxX = _maxBy(partneredCompanyNodes, 'x').x;
+  //     const centerX = (minX + maxX) / 2;
+  //     const marginX = (maxX - minX) / 2 + 10;
+  //     const minY = _minBy(partneredCompanyNodes, 'y').y;
+  //     const maxY = _maxBy(partneredCompanyNodes, 'y').y;
+  //     const centerY = (minY + maxY) / 2;
+  //     const marginY = maxY - minY;
 
-      return {
-        id: `groupCompany_${id}`,
-        label: name,
-        x: centerX,
-        y: centerY - MIN_HEIGHT / 2,
-        borderWidth: 4,
-        color: { background: colors.white, border: colors.purple },
-        margin: {
-          left: marginX,
-          right: marginX,
-          top: 5,
-          bottom: marginY + 55,
-        },
-        heightConstraint: 40,
-        shape: 'box',
-        shapeProperties: {
-          borderRadius: 0,
-        },
-        widthConstraint: 130,
-      };
-    });
+  //     return {
+  //       id: `groupCompany_${id}`,
+  //       label: name,
+  //       x: centerX,
+  //       y: centerY - MIN_HEIGHT / 2,
+  //       borderWidth: 4,
+  //       color: { background: colors.white, border: colors.purple },
+  //       margin: {
+  //         left: marginX,
+  //         right: marginX,
+  //         top: 5,
+  //         bottom: marginY + 55,
+  //       },
+  //       heightConstraint: 40,
+  //       shape: 'box',
+  //       shapeProperties: {
+  //         borderRadius: 0,
+  //       },
+  //       widthConstraint: 130,
+  //     };
+  //   });
 
   const companyOwnershipEdges = companyOwnerships
     .filter(({ parent, subsidiary }) => parent && subsidiary)
@@ -245,7 +200,7 @@ export function parseToVisNetwork({
       },
     }));
 
-  const nodes = [].concat(groupCompanyNodes, peopleNodes, companyNodes);
+  const nodes = [].concat(peopleNodes, companyNodes);
   const edges = [].concat(
     companyOwnershipEdges,
     ownershipEdges,

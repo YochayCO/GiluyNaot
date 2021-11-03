@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
+    "dagre": "^0.8.5",
     "lodash": "^4.17.21",
     "next": "^11.0.1",
     "nookies": "^2.5.2",

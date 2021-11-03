@@ -1,9 +1,16 @@
 import React from 'react';
-import { Network } from 'vis';
+import dagre from 'dagre';
+import { DataSet, Network } from 'vis';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { parseToVisNetwork, X_DISTANCE, Y_DISTANCE } from './utils';
+import {
+  parseToVisNetwork,
+  X_DISTANCE,
+  Y_DISTANCE,
+  MIN_HEIGHT,
+  MIN_WIDTH,
+} from './utils';
 import { changeNodePosition } from '../../lib/api';
 
 const NetworkContainer = styled.div`
@@ -49,6 +56,33 @@ export default class OwnershipNetwork extends React.Component {
       ownerships,
       relationships,
     });
+
+    const g = new dagre.graphlib.Graph();
+    g.setGraph({});
+    // Default to assigning a new object as a label for each new edge.
+    g.setDefaultEdgeLabel(() => ({}));
+
+    data.nodes.forEach((node) =>
+      g.setNode(node.id, { ...node, width: 50, height: 30 }),
+    );
+    data.edges.forEach((edge) => g.setEdge(edge.from, edge.to));
+
+    dagre.layout(g);
+
+    console.log(data.edges.length);
+
+    const nodes = g
+      .nodes()
+      .map((node) => g.node(node))
+      .filter((node) => !!node);
+
+    console.log(nodes);
+
+    const positionedData = {
+      nodes: new DataSet(nodes),
+      edges: data.edges,
+    };
+
     const container = document.getElementById('mynetwork');
     const options = {
       physics: {
@@ -69,7 +103,7 @@ export default class OwnershipNetwork extends React.Component {
         },
       },
     };
-    this.network = new Network(container, data, options);
+    this.network = new Network(container, positionedData, options);
     this.network.once('afterDrawing', () => {
       container.style.height = '90vh';
     });
