@@ -19,7 +19,7 @@ module.exports = {
     settings: {
         'import/resolver': {
             node: {
-                extensions: ['.js', '.ts'],
+                extensions: ['.js', '.jsx', '.ts', '.tsx'],
             },
         },
     },
@@ -77,6 +77,7 @@ module.exports = {
         'prefer-rest-params': 'off',
         'no-underscore-dangle': 'off',
         'func-names': 'off',
+        camelcase: 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         'import/extensions': [
             'error',

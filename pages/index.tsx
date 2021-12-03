@@ -1,11 +1,22 @@
 import React from 'react';
 import Head from 'next/head';
+import { GetServerSideProps } from 'next';
 import PropTypes from 'prop-types';
 import Header from '../components/Header';
-import OwnershipNetwork from '../components/OwnershipNetwork';
+// eslint-disable-next-line import/extensions
+import OwnershipNetwork from '../components/OwnershipNetwork/OwnershipNetwork';
 import { loginAndInitAPI, getNetwork } from '../lib/api';
+import { Entities } from '../types/Entities';
+import User from '../types/User';
 
-export default function Home({ user, people, companies, companyOwnerships, ownerships, relationships }) {
+export default function Home({
+    user,
+    people,
+    companies,
+    companyOwnerships,
+    ownerships,
+    relationships,
+}: Entities & { user: User }) {
     if (!user) return null;
 
     return (
@@ -74,10 +85,10 @@ Home.propTypes = {
     relationships: PropTypes.array,
 };
 
-export async function getServerSideProps(ctx) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const user = await loginAndInitAPI(ctx);
 
-    if (!user) return {};
+    if (!user) return { notFound: true };
 
     const { people, companies, companyOwnerships, ownerships, relationships } = (await getNetwork()) || [];
 
@@ -91,4 +102,4 @@ export async function getServerSideProps(ctx) {
             relationships,
         },
     };
-}
+};
