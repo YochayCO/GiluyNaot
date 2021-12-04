@@ -8,7 +8,7 @@ const NODE_HEIGHT = 70;
 function createTopBottomTreeGraph() {
     const dagreGraph = new dagre.graphlib.Graph();
     dagreGraph.setDefaultEdgeLabel(() => ({}));
-    dagreGraph.setGraph({ rankdir: 'TB', ranker: 'tight-tree' });
+    dagreGraph.setGraph({ rankdir: 'TB' });
     return dagreGraph;
 }
 
