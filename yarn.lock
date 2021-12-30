@@ -1469,6 +1469,11 @@
   "resolved" "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.9.tgz"
   "version" "7.0.9"
 
+"@types/lodash@^4.14.177":
+  "integrity" "sha512-0fDwydE2clKe9MNfvXHBHF9WEahRuj+msTuQqOmAApNORFvhMYZKNGGJdCzuhheVjMps/ti0Ak/iJPACMaevvw=="
+  "resolved" "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.177.tgz"
+  "version" "4.14.177"
+
 "@types/minimatch@*":
   "integrity" "sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ=="
   "resolved" "https://registry.npmjs.org/@types/minimatch/-/minimatch-3.0.5.tgz"
@@ -3363,7 +3368,7 @@
   "resolved" "https://registry.npmjs.org/etag/-/etag-1.8.1.tgz"
   "version" "1.8.1"
 
-"events@^3.0.0":
+"events@^3.0.0", "events@^3.3.0":
   "integrity" "sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q=="
   "resolved" "https://registry.npmjs.org/events/-/events-3.3.0.tgz"
   "version" "3.3.0"
@@ -3750,6 +3755,38 @@
   "version" "2.1.8"
   dependencies:
     "lodash" "^4.17.15"
+
+"graphology-layout-force@^0.2.3":
+  "integrity" "sha512-7V056TrSdBcdD0FzZiUqiMbi7uBJsRqxepSQ9+YTbKRy9OzMPn8tvT2NF86yU1xRJB4AJkbJN15mEDoBk83COg=="
+  "resolved" "https://registry.npmjs.org/graphology-layout-force/-/graphology-layout-force-0.2.3.tgz"
+  "version" "0.2.3"
+  dependencies:
+    "graphology-utils" "^2.4.2"
+
+"graphology-layout-noverlap@^0.4.1":
+  "integrity" "sha512-YM3KnSV9+nDMSbhj+lWqFMPQ8SY+QOlSbPVKoD5/IkxMsV5oksXOVPjLlR31HPt8bpsTE2GCYt5PA5HHzhknAQ=="
+  "resolved" "https://registry.npmjs.org/graphology-layout-noverlap/-/graphology-layout-noverlap-0.4.1.tgz"
+  "version" "0.4.1"
+  dependencies:
+    "graphology-utils" "^2.3.0"
+
+"graphology-types@>=0.19.0", "graphology-types@>=0.23.0":
+  "integrity" "sha512-6Je1NWU3el7YmybAhRzrOEi79Blhx05EU3wGUCvP5ikaxRXEflrW/5unfw5q/wqfwjryM9tcwUv4M7TZ8yTBYQ=="
+  "resolved" "https://registry.npmjs.org/graphology-types/-/graphology-types-0.23.0.tgz"
+  "version" "0.23.0"
+
+"graphology-utils@^2.3.0", "graphology-utils@^2.4.2":
+  "integrity" "sha512-m6kodF/XaSSbu1TRL89OlWsFKVS7InK5PA+KPuzJZTa1eOxUtDvbBiPPVp/9HO8jeg5pNd5pFJd9DqdBGmX/8A=="
+  "resolved" "https://registry.npmjs.org/graphology-utils/-/graphology-utils-2.4.2.tgz"
+  "version" "2.4.2"
+
+"graphology@^0.23.1":
+  "integrity" "sha512-BbqXtXpKnn/yJRnHgCJRkF5Ii5LDudThErd0yko6u3jGTH2+HE9/XbT245tn75ESeMZdJqJOGR+NHJh8Kex4Hw=="
+  "resolved" "https://registry.npmjs.org/graphology/-/graphology-0.23.1.tgz"
+  "version" "0.23.1"
+  dependencies:
+    "events" "^3.3.0"
+    "obliterator" "^2.0.0"
 
 "hammerjs@^2.0.8":
   "integrity" "sha1-BO93hiz/K7edMPdpIJWTAiK/YPE="
@@ -4873,6 +4910,11 @@
     "call-bind" "^1.0.2"
     "define-properties" "^1.1.3"
     "es-abstract" "^1.18.2"
+
+"obliterator@^2.0.0":
+  "integrity" "sha512-XnkiCrrBcIZQitJPAI36mrrpEUvatbte8hLcTcQwKA1v9NkCKasSi+UAguLsLDs/out7MoRzAlmz7VXvY6ph6w=="
+  "resolved" "https://registry.npmjs.org/obliterator/-/obliterator-2.0.1.tgz"
+  "version" "2.0.1"
 
 "once@^1.3.0":
   "integrity" "sha1-WDsap3WWHUsROsF9nFC6753Xa9E="

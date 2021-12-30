@@ -9,11 +9,11 @@ export default interface Company {
     picture?: any;
     xPosition?: number;
     yPosition?: number;
-    group_company?: string;
+    group_company?: { id: string };
     formal_name?: string;
     organization_type?: string;
     site_url?: string;
     tags?: string[];
-    network_section_id?: string;
+    network_section_id?: number;
     contract_url?: string;
 }

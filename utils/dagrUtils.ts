@@ -1,4 +1,5 @@
 import dagre from 'dagre';
+import { flatten, groupBy, map } from 'lodash';
 import { isNode, Position } from 'react-flow-renderer';
 import { GraphElements, GraphElementViewData } from './graphUtils';
 
@@ -15,6 +16,38 @@ function createTopBottomTreeGraph() {
 export type GraphElementsWithLayoutData = GraphElements<
     { position?: any; sourcePosition?: any; targetPosition?: any } & GraphElementViewData
 >;
+
+export const layoutGraph = (elements: GraphElements): GraphElementsWithLayoutData => {
+    const safeElements = elements.filter((element) => Number.isFinite(element.data?.networkSectionId));
+    const sectionedElements = groupBy(safeElements, (element) => element.data!.networkSectionId);
+    const sectionedElementsArr = Object.entries(sectionedElements).reduce((currArr, currEles) => {
+        const networkSecId = Number(currEles[0]);
+        if (!Number.isFinite(networkSecId)) return currArr;
+        const newArr = [...currArr];
+        // eslint-disable-next-line prefer-destructuring
+        newArr[networkSecId] = currEles[1];
+        return newArr;
+    }, new Array(sectionedElements.length));
+
+    const safeSectionedElementsArr = sectionedElementsArr.filter((eles) => !!eles);
+
+    const positionedSectionedElements = map(safeSectionedElementsArr, (eles, index) => {
+        console.log(eles, index);
+        const positionedElements = addDagreGraphPositions(eles);
+        return positionedElements.map((element) => {
+            if (!isNode(element)) return element;
+
+            return {
+                ...element,
+                position: { x: element.data?.position?.x, y: element.data?.position?.y + Number(index) * 100 },
+            };
+        });
+    });
+
+    console.log(flatten(positionedSectionedElements));
+
+    return flatten(positionedSectionedElements);
+};
 
 export const addDagreGraphPositions = (elements: GraphElements): GraphElementsWithLayoutData => {
     const dagreGraph = createTopBottomTreeGraph();
