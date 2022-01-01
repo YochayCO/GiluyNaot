@@ -3,7 +3,6 @@ import Head from 'next/head';
 import { GetServerSideProps } from 'next';
 import PropTypes from 'prop-types';
 import Header from '../components/Header';
-// eslint-disable-next-line import/extensions
 import OwnershipNetwork from '../components/OwnershipNetwork/OwnershipNetwork';
 import { loginAndInitAPI, getNetwork } from '../lib/api';
 import { Entities } from '../types/Entities';

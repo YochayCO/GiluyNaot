@@ -9,13 +9,24 @@ import Relationship from '../types/Relationship';
 
 const INITIAL_NODE_POSITION = { x: 0, y: 0 };
 
-export interface NodeViewData {
+export interface CompanyNodeViewData {
+    originalId: string;
+    label: string;
+    size?: number;
+    isParent?: boolean;
+    networkSectionId: number;
+    isComm?: boolean;
+}
+
+export interface PersonNodeViewData {
     originalId: string;
     label: string;
     size?: number;
     isParent?: boolean;
     networkSectionId: number;
 }
+
+export type NodeViewData = CompanyNodeViewData | PersonNodeViewData;
 
 export interface OwnershipEdgeData {
     originalId: string;
@@ -37,7 +48,7 @@ export const createPersonElement = (person: Person): Node<NodeViewData> => {
 
     return {
         id: `person_${id}`,
-        // type: 'company',
+        type: 'person',
         data: {
             originalId: id,
             label: `${name} ${network_section_id}`,
@@ -63,7 +74,7 @@ const createCompanyElements = (companies: Company[]): Node<NodeViewData>[] => {
 
     const mainCompElements = mainCompObjs.map(({ id, comp, size }) => ({
         id: `company_${id}`,
-        // type: 'company',
+        type: 'company',
         data: {
             originalId: id,
             label: `${comp?.name} ${comp?.network_section_id}` || '???',
@@ -76,20 +87,6 @@ const createCompanyElements = (companies: Company[]): Node<NodeViewData>[] => {
 
     return mainCompElements;
 };
-
-// const createCompanyElement = (company: Company): Node<NodeViewData> => {
-//     const { id, name } = company;
-
-//     return {
-//         id: `company_${id}`,
-//         // type: 'company',
-//         data: {
-//             originalId: id,
-//             label: name,
-//         },
-//         position: INITIAL_NODE_POSITION,
-//     };
-// };
 
 const createCompanyOwnershipEdges = (
     companyOwnerships: CompanyOwnership[],
@@ -119,21 +116,6 @@ const createCompanyOwnershipEdges = (
 
     return companyOwnershipEdges;
 };
-
-// const createCompanyOwnershipEdge = (companyOwnership: CompanyOwnership): Edge<OwnershipEdgeData> => {
-//     const { id, parent, subsidiary, level } = companyOwnership;
-
-//     return {
-//         id: `company_ownership_${id}`,
-//         type: 'default',
-//         source: `company_${parent!.id}`,
-//         target: `company_${subsidiary!.id}`,
-//         data: {
-//             originalId: id,
-//             level,
-//         },
-//     };
-// };
 
 const createOwnershipEdges = (ownerships: Ownership[], companies: Company[]): Edge<OwnershipEdgeData>[] => {
     const validOwnerships = ownerships.filter((o) => o.company && o.owner);
@@ -196,7 +178,7 @@ export const mapEntitiesToElements = ({
     companyOwnerships,
     ownerships,
     relationships,
-}: Entities) => {
+}: Entities): { nodes: Node[]; edges: Edge[] } => {
     if (!companies || !companyOwnerships || !people || !ownerships || !relationships)
         throw new Error('Some error with entities');
 
@@ -206,5 +188,8 @@ export const mapEntitiesToElements = ({
     const ownershipEdges = createOwnershipEdges(ownerships, companies);
     const relationshipEdges = relationships.filter((r) => r.relative_1 && r.relative_2).map(createRelationshipEdge);
 
-    return [...peopleElements, ...companyElements, ...companyOwnershipEdges, ...ownershipEdges, ...relationshipEdges];
+    return {
+        nodes: [...peopleElements, ...companyElements],
+        edges: [...companyOwnershipEdges, ...ownershipEdges, ...relationshipEdges],
+    };
 };

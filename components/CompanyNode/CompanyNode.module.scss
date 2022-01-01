@@ -1,0 +1,26 @@
+.node {
+    display: flex;
+    position: relative;
+    align-items: center;
+    flex-direction: column;
+    max-width: 175px !important;
+    width: 175px !important;
+    background-color: lightgreen;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #303030;
+
+    &--comm {
+        background-color: white;
+    }
+}
+
+.label {
+    text-overflow: ellipsis;
+
+    text-align: center;
+
+    padding: 0 5px;
+    width: 100%;
+    max-height: 45px;
+}

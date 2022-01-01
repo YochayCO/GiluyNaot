@@ -14,6 +14,7 @@
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "axios": "^0.21.1",
+    "classnames": "^2.2.6",
     "dagre": "^0.8.5",
     "graphology": "^0.23.1",
     "graphology-layout-force": "^0.2.3",
@@ -24,6 +25,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-flow-renderer": "^9.6.11",
+    "sass": "^1.45.2",
     "styled-components": "^5.3.0",
     "vis": "^4.21.0-EOL"
   },
