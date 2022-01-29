@@ -1,8 +1,8 @@
 import Graph from 'graphology';
 import noverlap from 'graphology-layout-noverlap';
-import { Edge, Node } from 'react-flow-renderer';
+import { Edge, Node, XYPosition } from 'react-flow-renderer';
 import { compact, partition } from 'lodash';
-import { GraphElements, GraphElementViewData } from './graphUtils';
+import { CompanyNodeViewData, GraphElements, GraphElementViewData } from './graphUtils';
 
 const NODE_WIDTH = 175;
 const NODE_HEIGHT = 70;
@@ -54,4 +54,32 @@ export const addGraphologyPositions = (elements: GraphElements): GraphElementsWi
     const compactPositionedNodes = compact(positionedNodes);
 
     return [...compactPositionedNodes, ...edges];
+};
+
+export const getMainCompDimentions = (
+    mainCompanyEl: Node<CompanyNodeViewData>,
+    secondaryCompaniesEles: Node<CompanyNodeViewData>[],
+): { width: number; height: number } => {
+    const width = NODE_WIDTH + 20;
+    const height = NODE_HEIGHT + 20;
+    const numOfChildComps = secondaryCompaniesEles.length;
+
+    if (numOfChildComps < 4) return { width, height: height * numOfChildComps };
+
+    return { width: width * 2, height: height * Math.ceil(numOfChildComps / 2) };
+};
+
+export const getGroupSecondaryCompsPositions = (
+    mainCompanyEl: Node<CompanyNodeViewData>,
+    secondaryCompaniesEles: Node<CompanyNodeViewData>[],
+): Record<string, XYPosition> => {
+    const record: Record<string, XYPosition> = secondaryCompaniesEles.reduce(
+        (rec, comp, i) => ({
+            ...rec,
+            [comp.id]: { x: mainCompanyEl.position.x + 10, y: mainCompanyEl.position.y + i * NODE_HEIGHT + 10 },
+        }),
+        {},
+    );
+    // console.log(secondaryCompaniesEles);
+    return record;
 };

@@ -2,10 +2,12 @@ import React from 'react';
 import Head from 'next/head';
 import { GetServerSideProps } from 'next';
 import PropTypes from 'prop-types';
+import { ReactFlowProvider } from 'react-flow-renderer';
+
 import Header from '../components/Header';
 import OwnershipNetwork from '../components/OwnershipNetwork/OwnershipNetwork';
 import { loginAndInitAPI, getNetwork } from '../lib/api';
-import { Entities } from '../types/Entities';
+import { GraphEntities } from '../types/Entities';
 import User from '../types/User';
 
 export default function Home({
@@ -15,7 +17,7 @@ export default function Home({
     companyOwnerships,
     ownerships,
     relationships,
-}: Entities & { user: User }) {
+}: GraphEntities & { user: User }) {
     if (!user) return null;
 
     return (
@@ -28,14 +30,16 @@ export default function Home({
             <main>
                 <Header />
 
-                <OwnershipNetwork
-                    user={user}
-                    people={people}
-                    companies={companies}
-                    companyOwnerships={companyOwnerships}
-                    ownerships={ownerships}
-                    relationships={relationships}
-                />
+                <ReactFlowProvider>
+                    <OwnershipNetwork
+                        user={user}
+                        people={people}
+                        companies={companies}
+                        companyOwnerships={companyOwnerships}
+                        ownerships={ownerships}
+                        relationships={relationships}
+                    />
+                </ReactFlowProvider>
             </main>
 
             <style jsx>{`

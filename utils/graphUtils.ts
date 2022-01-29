@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Edge, Elements, Node } from 'react-flow-renderer';
+import _partition from 'lodash/partition';
 
 import Company from '../types/Company';
 import { CompanyOwnership, Ownership, OwnershipLevel } from '../types/Ownerships';
-import { Entities } from '../types/Entities';
+import { GraphEntities } from '../types/Entities';
 import Person from '../types/Person';
 import Relationship from '../types/Relationship';
 
@@ -12,10 +13,11 @@ const INITIAL_NODE_POSITION = { x: 0, y: 0 };
 export interface CompanyNodeViewData {
     originalId: string;
     label: string;
-    size?: number;
-    isParent?: boolean;
+    childrenIds?: string[];
+    groupCompany?: string;
     networkSectionId: number;
     isComm?: boolean;
+    dimensions?: { width: number; height: number };
 }
 
 export interface PersonNodeViewData {
@@ -44,7 +46,7 @@ export type GraphElementViewData = NodeViewData | OwnershipEdgeData | Relationsh
 export type GraphElements<T = GraphElementViewData> = Elements<T>;
 
 export const createPersonElement = (person: Person): Node<NodeViewData> => {
-    const { id, name, network_section_id } = person;
+    const { id, name, network_section_id, xPosition, yPosition } = person;
 
     return {
         id: `person_${id}`,
@@ -54,58 +56,78 @@ export const createPersonElement = (person: Person): Node<NodeViewData> => {
             label: `${name} ${network_section_id}`,
             networkSectionId: network_section_id || -1,
         },
-        position: INITIAL_NODE_POSITION,
+        position: xPosition && yPosition ? { x: xPosition, y: yPosition } : INITIAL_NODE_POSITION,
     };
 };
 
 const createCompanyElements = (companies: Company[]): Node<NodeViewData>[] => {
-    const mainCompObjs: { id: string; comp?: Company; size: number }[] = [];
-    companies.forEach((comp) => {
-        const mainId = comp.group_company?.id || comp.id;
+    const [secondaryComps, mainComps] = _partition(
+        companies,
+        (comp) => !comp.group_company?.id || comp.group_company.id !== comp.id,
+    );
 
-        if (!mainCompObjs.find((compObj) => compObj.id === mainId)) {
-            mainCompObjs.push({ id: mainId, size: 1 });
-        }
-        if (mainId === comp.id) {
-            const mainCompObj = mainCompObjs.find((compObj) => compObj.id === mainId);
-            mainCompObj!.comp = comp;
-        }
+    const secondaryCompElements = secondaryComps.map(
+        ({ id, name, network_section_id, is_comm, xPosition, yPosition, group_company }) => {
+            const generateCompanyId = (d: string) => `company_${d}`;
+            return {
+                id: generateCompanyId(id),
+                type: 'company',
+                data: {
+                    originalId: id,
+                    label: name || '???',
+                    networkSectionId: network_section_id || -1,
+                    isComm: is_comm,
+                    groupCompany: group_company ? generateCompanyId(group_company.id) : null,
+                },
+                position: xPosition && yPosition ? { x: xPosition, y: yPosition } : INITIAL_NODE_POSITION,
+            };
+        },
+    );
+
+    const mainCompElements = mainComps.map((mc) => {
+        const elementId = `company_${mc.id}`;
+        return {
+            id: elementId,
+            type: 'groupCompany',
+            data: {
+                originalId: mc.id,
+                label: mc.name || '???',
+                childrenIds: secondaryCompElements.filter((c) => c.data.groupCompany === elementId).map((c) => c.id),
+                networkSectionId: mc.network_section_id || -1,
+                isComm: mc.is_comm,
+            },
+            position: mc.xPosition && mc.yPosition ? { x: mc.xPosition, y: mc.yPosition } : INITIAL_NODE_POSITION,
+        };
     });
 
-    const mainCompElements = mainCompObjs.map(({ id, comp, size }) => ({
-        id: `company_${id}`,
-        type: 'company',
-        data: {
-            originalId: id,
-            label: `${comp?.name} ${comp?.network_section_id}` || '???',
-            size,
-            isParent: size > 1,
-            networkSectionId: comp?.network_section_id || -1,
-        },
-        position: INITIAL_NODE_POSITION,
-    }));
+    // mainCompElements.forEach((mainCompEl) => {
+    //     const secondaryCompEles = secondaryCompElements.filter((comp) => comp.data.groupCompany);
+    //     applyPositionsAndDimentionsToGroup(mainCompEl, secondaryCompEles);
+    // });
 
-    return mainCompElements;
+    return [...mainCompElements, ...secondaryCompElements];
 };
+
+type SafeCompanyOwnership = CompanyOwnership & { subsidiary: Company; parent: Company };
 
 const createCompanyOwnershipEdges = (
     companyOwnerships: CompanyOwnership[],
     companies: Company[],
 ): Edge<OwnershipEdgeData>[] => {
-    const validCompOwnerships = companyOwnerships.filter((c) => c.subsidiary && c.parent);
+    const validCompOwnerships: SafeCompanyOwnership[] = companyOwnerships.filter(
+        (c) => c.subsidiary && c.parent,
+    ) as SafeCompanyOwnership[];
     const companyOwnershipEdges = validCompOwnerships.map((ownership) => {
         const { id, parent, subsidiary, level } = ownership;
-        const parentComp = companies.find((comp) => comp.id === parent!.id);
-        const parentGroupCompId = parentComp?.group_company?.id || parent!.id;
+        const parentComp = companies.find((comp) => comp.id === parent.id);
 
-        const subsidiaryComp = companies.find((comp) => comp.id === subsidiary!.id);
-        const subsidiaryGroupCompId = subsidiaryComp?.group_company?.id || subsidiary!.id;
+        const subsidiaryComp = companies.find((comp) => comp.id === subsidiary.id);
 
         return {
             id: `company_ownership_${id}`,
             type: 'default',
-            source: `company_${parentGroupCompId}`,
-            target: `company_${subsidiaryGroupCompId}`,
+            source: `company_${parentComp?.id}`,
+            target: `company_${subsidiaryComp?.id}`,
             data: {
                 originalId: id,
                 level,
@@ -123,13 +145,12 @@ const createOwnershipEdges = (ownerships: Ownership[], companies: Company[]): Ed
         const { id, owner, company, level } = o;
 
         const childComp = companies.find((comp) => comp.id === company!.id);
-        const childGroupCompId = childComp?.group_company?.id || childComp!.id;
 
         return {
             id: `ownership_${id}`,
             type: 'default',
             source: `person_${owner!.id}`,
-            target: `company_${childGroupCompId}`,
+            target: `company_${childComp?.id}`,
             data: {
                 originalId: id,
                 level,
@@ -140,21 +161,6 @@ const createOwnershipEdges = (ownerships: Ownership[], companies: Company[]): Ed
 
     return ownershipEdges;
 };
-
-// const createOwnershipEdge = (ownership: Ownership): Edge<OwnershipEdgeData> => {
-//     const { id, owner, company, level } = ownership;
-
-//     return {
-//         id: `ownership_${id}`,
-//         type: 'default',
-//         source: `person_${owner!.id}`,
-//         target: `company_${company!.id}`,
-//         data: {
-//             originalId: id,
-//             level,
-//         },
-//     };
-// };
 
 const createRelationshipEdge = (relationship: Relationship): Edge<RelationshipEdgeData> => {
     const { id, relative_1, relative_2, relationType } = relationship;
@@ -178,9 +184,9 @@ export const mapEntitiesToElements = ({
     companyOwnerships,
     ownerships,
     relationships,
-}: Entities): { nodes: Node[]; edges: Edge[] } => {
+}: GraphEntities): { nodes: Node[]; edges: Edge[] } => {
     if (!companies || !companyOwnerships || !people || !ownerships || !relationships)
-        throw new Error('Some error with entities');
+        throw new Error('Some essential data could not be fetched from server');
 
     const peopleElements = people.map(createPersonElement);
     const companyElements = createCompanyElements(companies);
@@ -189,7 +195,7 @@ export const mapEntitiesToElements = ({
     const relationshipEdges = relationships.filter((r) => r.relative_1 && r.relative_2).map(createRelationshipEdge);
 
     return {
-        nodes: [...peopleElements, ...companyElements],
+        nodes: [...companyElements, ...peopleElements],
         edges: [...companyOwnershipEdges, ...ownershipEdges, ...relationshipEdges],
     };
 };

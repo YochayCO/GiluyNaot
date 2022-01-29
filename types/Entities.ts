@@ -3,7 +3,7 @@ import { CompanyOwnership, Ownership } from './Ownerships';
 import Relationship from './Relationship';
 import Person from './Person';
 
-export interface Entities {
+export interface GraphEntities {
     people?: Person[];
     companies?: Company[];
     companyOwnerships?: CompanyOwnership[];

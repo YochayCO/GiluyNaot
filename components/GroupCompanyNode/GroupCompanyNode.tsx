@@ -2,15 +2,15 @@ import cx from 'classnames';
 import React from 'react';
 import { Handle, Position } from 'react-flow-renderer';
 import { CompanyNodeViewData } from '../../utils/graphUtils';
-import styles from './CompanyNode.module.scss';
+import styles from './GroupCompanyNode.module.scss';
 
-interface CompanyGraphNodePropsType {
+interface GroupCompanyGraphNodePropsType {
     data: CompanyNodeViewData;
     isConnectable: boolean;
     id: string;
 }
 
-const CompanyGraphNode = (props: CompanyGraphNodePropsType) => {
+const CompanyGraphNode = (props: GroupCompanyGraphNodePropsType) => {
     const { data, isConnectable, id } = props;
     const { label, isComm } = data;
     const targetPosition = Position.Top;
@@ -29,7 +29,7 @@ const CompanyGraphNode = (props: CompanyGraphNodePropsType) => {
                 isConnectable={isConnectable}
                 id={id}
             />
-            <div className={nodeClassNames} title={label}>
+            <div className={nodeClassNames} title={label} style={{ width: 500, height: 500 }}>
                 <div className={styles.label}>{label}</div>
             </div>
             <Handle
